@@ -15,6 +15,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -26,10 +27,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SessionManagerClient interface {
-	OnSessionCreated(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SessionResponse, error)
-	OnSessionUpdated(ctx context.Context, in *SessionUpdatedRequest, opts ...grpc.CallOption) (*SessionResponse, error)
-	OnSessionStorageUpdated(ctx context.Context, in *SessionStorageUpdatedRequest, opts ...grpc.CallOption) (*SessionStorageResponse, error)
-	OnSessionDeleted(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SessionResponse, error)
+	OnSessionCreated(ctx context.Context, in *SessionCreatedRequest, opts ...grpc.CallOption) (*SessionResponse, error)
+	OnSessionUpdated(ctx context.Context, in *SessionUpdatedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OnSessionDeleted(ctx context.Context, in *SessionDeletedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type sessionManagerClient struct {
@@ -40,7 +40,7 @@ func NewSessionManagerClient(cc grpc.ClientConnInterface) SessionManagerClient {
 	return &sessionManagerClient{cc}
 }
 
-func (c *sessionManagerClient) OnSessionCreated(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SessionResponse, error) {
+func (c *sessionManagerClient) OnSessionCreated(ctx context.Context, in *SessionCreatedRequest, opts ...grpc.CallOption) (*SessionResponse, error) {
 	out := new(SessionResponse)
 	err := c.cc.Invoke(ctx, "/accelbyte.session.manager.SessionManager/OnSessionCreated", in, out, opts...)
 	if err != nil {
@@ -49,8 +49,8 @@ func (c *sessionManagerClient) OnSessionCreated(ctx context.Context, in *Session
 	return out, nil
 }
 
-func (c *sessionManagerClient) OnSessionUpdated(ctx context.Context, in *SessionUpdatedRequest, opts ...grpc.CallOption) (*SessionResponse, error) {
-	out := new(SessionResponse)
+func (c *sessionManagerClient) OnSessionUpdated(ctx context.Context, in *SessionUpdatedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/accelbyte.session.manager.SessionManager/OnSessionUpdated", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -58,17 +58,8 @@ func (c *sessionManagerClient) OnSessionUpdated(ctx context.Context, in *Session
 	return out, nil
 }
 
-func (c *sessionManagerClient) OnSessionStorageUpdated(ctx context.Context, in *SessionStorageUpdatedRequest, opts ...grpc.CallOption) (*SessionStorageResponse, error) {
-	out := new(SessionStorageResponse)
-	err := c.cc.Invoke(ctx, "/accelbyte.session.manager.SessionManager/OnSessionStorageUpdated", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sessionManagerClient) OnSessionDeleted(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*SessionResponse, error) {
-	out := new(SessionResponse)
+func (c *sessionManagerClient) OnSessionDeleted(ctx context.Context, in *SessionDeletedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/accelbyte.session.manager.SessionManager/OnSessionDeleted", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -80,10 +71,9 @@ func (c *sessionManagerClient) OnSessionDeleted(ctx context.Context, in *Session
 // All implementations must embed UnimplementedSessionManagerServer
 // for forward compatibility
 type SessionManagerServer interface {
-	OnSessionCreated(context.Context, *SessionRequest) (*SessionResponse, error)
-	OnSessionUpdated(context.Context, *SessionUpdatedRequest) (*SessionResponse, error)
-	OnSessionStorageUpdated(context.Context, *SessionStorageUpdatedRequest) (*SessionStorageResponse, error)
-	OnSessionDeleted(context.Context, *SessionRequest) (*SessionResponse, error)
+	OnSessionCreated(context.Context, *SessionCreatedRequest) (*SessionResponse, error)
+	OnSessionUpdated(context.Context, *SessionUpdatedRequest) (*emptypb.Empty, error)
+	OnSessionDeleted(context.Context, *SessionDeletedRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedSessionManagerServer()
 }
 
@@ -91,16 +81,13 @@ type SessionManagerServer interface {
 type UnimplementedSessionManagerServer struct {
 }
 
-func (UnimplementedSessionManagerServer) OnSessionCreated(context.Context, *SessionRequest) (*SessionResponse, error) {
+func (UnimplementedSessionManagerServer) OnSessionCreated(context.Context, *SessionCreatedRequest) (*SessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnSessionCreated not implemented")
 }
-func (UnimplementedSessionManagerServer) OnSessionUpdated(context.Context, *SessionUpdatedRequest) (*SessionResponse, error) {
+func (UnimplementedSessionManagerServer) OnSessionUpdated(context.Context, *SessionUpdatedRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnSessionUpdated not implemented")
 }
-func (UnimplementedSessionManagerServer) OnSessionStorageUpdated(context.Context, *SessionStorageUpdatedRequest) (*SessionStorageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OnSessionStorageUpdated not implemented")
-}
-func (UnimplementedSessionManagerServer) OnSessionDeleted(context.Context, *SessionRequest) (*SessionResponse, error) {
+func (UnimplementedSessionManagerServer) OnSessionDeleted(context.Context, *SessionDeletedRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnSessionDeleted not implemented")
 }
 func (UnimplementedSessionManagerServer) mustEmbedUnimplementedSessionManagerServer() {}
@@ -117,7 +104,7 @@ func RegisterSessionManagerServer(s grpc.ServiceRegistrar, srv SessionManagerSer
 }
 
 func _SessionManager_OnSessionCreated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SessionRequest)
+	in := new(SessionCreatedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -129,7 +116,7 @@ func _SessionManager_OnSessionCreated_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/accelbyte.session.manager.SessionManager/OnSessionCreated",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionManagerServer).OnSessionCreated(ctx, req.(*SessionRequest))
+		return srv.(SessionManagerServer).OnSessionCreated(ctx, req.(*SessionCreatedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -152,26 +139,8 @@ func _SessionManager_OnSessionUpdated_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SessionManager_OnSessionStorageUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SessionStorageUpdatedRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SessionManagerServer).OnSessionStorageUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/accelbyte.session.manager.SessionManager/OnSessionStorageUpdated",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionManagerServer).OnSessionStorageUpdated(ctx, req.(*SessionStorageUpdatedRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _SessionManager_OnSessionDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SessionRequest)
+	in := new(SessionDeletedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -183,7 +152,7 @@ func _SessionManager_OnSessionDeleted_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/accelbyte.session.manager.SessionManager/OnSessionDeleted",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionManagerServer).OnSessionDeleted(ctx, req.(*SessionRequest))
+		return srv.(SessionManagerServer).OnSessionDeleted(ctx, req.(*SessionDeletedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -202,10 +171,6 @@ var SessionManager_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OnSessionUpdated",
 			Handler:    _SessionManager_OnSessionUpdated_Handler,
-		},
-		{
-			MethodName: "OnSessionStorageUpdated",
-			Handler:    _SessionManager_OnSessionStorageUpdated_Handler,
 		},
 		{
 			MethodName: "OnSessionDeleted",
