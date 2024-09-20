@@ -6,7 +6,7 @@ flowchart LR
    CL[gRPC Client]
    end
    subgraph Extend Override App
-   SV["gRPC Server (you are here)"]
+   SV["gRPC Server"]
    end
    CL --- SV
 ```
