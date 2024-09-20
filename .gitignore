@@ -87,3 +87,5 @@ fabric.properties
 .env.local
 
 .vscode/settings.json
+.cache/
+session-manager-grpc-plugin-server-go

@@ -1,4 +1,8 @@
-package session
+// Copyright (c) 2024 AccelByte Inc. All Rights Reserved.
+// This is licensed software from AccelByte Inc, for limitations
+// and restrictions contact your company contract manager.
+
+package server
 
 import (
 	"context"
@@ -15,7 +19,7 @@ type SessionManager struct {
 
 func (s *SessionManager) OnSessionCreated(ctx context.Context, request *sessionmanager.SessionCreatedRequest) (*sessionmanager.SessionResponse, error) {
 	log.Println("got message from OnSessionCreated")
-	log.Println(request.GetSession())
+	log.Println("session", request.GetSession())
 	session := request.GetSession()
 	if session.Session.Attributes == nil {
 		session.Session.Attributes = &structpb.Struct{}
@@ -31,13 +35,13 @@ func (s *SessionManager) OnSessionCreated(ctx context.Context, request *sessionm
 
 func (s *SessionManager) OnSessionUpdated(ctx context.Context, request *sessionmanager.SessionUpdatedRequest) (*emptypb.Empty, error) {
 	log.Println("got message from OnSessionUpdated")
-	log.Println(request.GetSessionOld())
-	log.Println(request.GetSessionNew())
+	log.Println("old Session:", request.GetSessionOld())
+	log.Println("new Session:", request.GetSessionNew())
 	return &emptypb.Empty{}, nil
 }
 
 func (s *SessionManager) OnSessionDeleted(ctx context.Context, request *sessionmanager.SessionDeletedRequest) (*emptypb.Empty, error) {
 	log.Println("got message from OnSessionDeleted")
-	log.Println(request.GetSession())
+	log.Println("session deleted", request.GetSession())
 	return &emptypb.Empty{}, nil
 }

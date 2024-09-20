@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2023 AccelByte Inc. All Rights Reserved.
+// Copyright (c) 2024 AccelByte Inc. All Rights Reserved.
 // This is licensed software from AccelByte Inc, for limitations
 // and restrictions contact your company contract manager.
 
@@ -127,7 +127,6 @@ func (s Scope) SetName(name string) {
 }
 
 // SetAttributes adds attributes onto a span based on the value object type
-// TODO https://accelbyte.atlassian.net/browse/AR-3931
 //
 //nolint:cyclop
 func (s *Scope) SetAttributes(key string, value interface{}) {

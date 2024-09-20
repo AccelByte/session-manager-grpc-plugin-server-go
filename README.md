@@ -54,13 +54,13 @@ You can clone this repository to begin developing your own `Extend Override` app
       ...
       ```
 
-   d. Go v1.21
+   d. Go v1.22
 
       - Follow [Go installation](https://go.dev/doc/install) instruction to install Go
 
       ```
       go version
-      go version go1.21.0 linux/amd64
+      go version go1.22.0 linux/amd64
       ```
 
    e. Curl
@@ -89,23 +89,14 @@ You can clone this repository to begin developing your own `Extend Override` app
 
       - Use binary available [here](https://www.postman.com/downloads/)
 
-   h. [ngrok](https://ngrok.com/)
+    h. [ngrok](https://ngrok.com/)
 
-      - Follow installation instruction for Linux [here](https://ngrok.com/download)
+      - Follow [ngrok's installation guide](https://ngrok.com/download).
 
-   > :exclamation: In macOS, you may use [Homebrew](https://brew.sh/) to easily install some of the tools above.
+    i. [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli)
+      - Use the available binary from [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/releases).
 
-   ```
-   git clone https://github.com/AccelByte/session-manager-grpc-plugin-go.git
-   ```
-
-   a. Base URL
-   
-      - Sample URL for AGS Shared Cloud customers: https://spaceshooter.prod.gamingservices.accelbyte.io
-      
-   b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/tutorials/how-to/create-a-game-namespace/) if you don't have one yet. Keep the `Namespace ID`.
-
-   c. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with confidential client type. Keep the `Client ID` and `Client Secret`.
+    > :exclamation: In macOS, you may use [Homebrew](https://brew.sh/) to easily install some of the tools above.
 
 ## Setup
 
@@ -130,16 +121,18 @@ To be able to run this app, you will need to follow these setup steps.
    ```
 
 3. Access to AccelByte Gaming Services environment.
-a. Base URL: https://prod.gamingservices.accelbyte.io/admin
+    a. Base URL
+        - Sample URL for AGS Shared Cloud customers: https://spaceshooter.prod.gamingservices.accelbyte.io
+    b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/tutorials/how-to/create-a-game-namespace/) if you don't have one yet. Keep the `Namespace ID`.
+    c. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with confidential client type. Keep the `Client ID` and `Client Secret`.
 
 ## Building
 
 To build this app, use the following command.
-the image only can run 1 server gcpvm or gamelift
 
 ```
 make proto
-docker build -f Dockerfile .
+make build
 ```
 
 ## Running
@@ -147,24 +140,28 @@ docker build -f Dockerfile .
 To (build and) run this app in a container, use the following command.
 
 ```
-docker-compose -f docker-compose.yaml up --build
+docker compose up --build
 ```
 
 ## Testing
 
 ### Test in Local Development Environment
 
+> :warning: **To perform the following, make sure PLUGIN_GRPC_SERVER_AUTH_ENABLED is set to `false`**: Otherwise,
+the gRPC request will be rejected by the `gRPC server`.
+
 The custom functions in this app can be tested locally using [postman](https://www.postman.com/).
 
 1. Run this app by using the command below.
 
    ```shell
-   docker-compose -f docker-compose.yaml up --build
+   docker compose up --build
    ```
 
 2. Open `postman`, create a new `gRPC request`, and enter `localhost:6565` as server URL (tutorial [here](https://blog.postman.com/postman-now-supports-grpc/)). 
 
 3. In `postman`, continue by selecting `OnSessionCreated` grpc call method and click `Invoke` button, this will start stream connection to the gRPC server.
+
 4. In `postman`, continue sending parameters first to specify number of players in a match by copying sample `json` below and click `Send`.
 
    ```json
@@ -175,8 +172,24 @@ The custom functions in this app can be tested locally using [postman](https://w
             "is_active": true,
             "namespace": "namespace",
             "created_by": "created_by"
-        }
-    }
+         }
+      }
+   }
+   ```
+   Expected response when success the session will be returned back but will added `attributes` field like below:
+   ```
+   {
+    "session": {
+        "session": {
+            "id": "sessionid",
+            "is_active": true,
+            "namespace": "namespace",
+            "created_by": "created_by",
+            "attributes": {
+                "SAMPLE": "value from GRPC server"
+            }
+         }
+      }
    }
    ```
 
@@ -187,7 +200,7 @@ For testing this app which is running locally with AGS, the `gRPC server` needs 
 1. Run this app by using command below.
 
    ```shell
-   docker-compose -f docker-compose.yaml up --build
+   docker compose up --build
    ```
 
 2. Sign-in/sign-up to [ngrok](https://ngrok.com/) and get your auth token in `ngrok` dashboard.
@@ -202,9 +215,26 @@ For testing this app which is running locally with AGS, the `gRPC server` needs 
 
 4. in admin portal go to -> Multiplayer > Matchmaking > Session Configuration. Click on the Add Session Template button. Select the Server configuration to be a DS - Custom. Then, select the Custom URL option and provide the ngrok forwarding URL from step 3.
 
-5. create gamesession or do matchmaking
+5. create gamesession via [end point](https://docs.accelbyte.io/api-explorer/#Session/createGameSession) with simple json body:
+```
+{
+  "configurationName": "<your-session-template>"
+}
+```
 
-6. in Sessions and Parties - > check in session detail base on session id -> if ds status available check your server in GCPVM or gamelift
+6. Check the result in Admin portal -> Multiplayer -> Sessions and Parties. Check in session detail that created by number 5 and we will have session with `attributes` with key `SAMPLE` and value is `value from GRPC server`
+```
+{
+    ...
+    "id": "e99542476f924d5aa5166a3d83932056",
+    "namespace": "<your-namespace>",
+    "createdAt": "2024-09-19T01:50:10.999Z",
+    "attributes": {
+        "SAMPLE": "value from GRPC server"
+    },
+    ...
+}
+```
 
 ## Deploying
 
@@ -217,7 +247,7 @@ After done testing, you may want to deploy this app to `AccelByte Gaming Service
 3. Perform docker login with `extend-helper-cli` using the following command.
 
    ```
-   extend-helper-cli dockerlogin --namespace <my-game> --app <my-app> --login
+   extend-helper-cli dockerlogin --namespace <my-namespace> --app <my-app> --login
    ```
 
    > :exclamation: For your convenience, the above `extend-helper-cli` command can also be 
@@ -226,18 +256,16 @@ After done testing, you may want to deploy this app to `AccelByte Gaming Service
 4. Build and push app docker image to AccelByte ECR using the following command.
    
    ```
-   extend-helper-cli image-upload --work-dir <my-project-dir> --namespace <my-game> -f Dockerfile --app <my-app> --image-tag v0.0.1
+   extend-helper-cli image-upload --work-dir <my-project-dir> --namespace <my-namespace> -f Dockerfile --app <my-app> --image-tag v0.0.1
    ```
 
    > :warning: Make sure to perform docker login (step 3) before executing the above command.
 
 5. Open Admin Portal, go to **Extend** -> **Overridable Features**. And then select the extend app.
 
-6. To deploy selected image tag, click **Image Version History** and select 
-   desired image tag to be deployed.
+6. To deploy selected image tag, click **Image Version History** and select desired image tag to be deployed.
 
-7. Click **Deploy Image**, confirm the deployment and go back to App Detail by 
-   clicking **Cancel**.
+7. Click **Deploy Image**, confirm the deployment and go back to App Detail by clicking **Cancel**.
 
 8. Wait until app status is running.
 
