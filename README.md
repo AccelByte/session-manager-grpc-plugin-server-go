@@ -63,7 +63,8 @@ You can clone this repository to begin developing your own `Extend Override` app
 
       ```
       go version
-      go version go1.22.0 linux/amd64
+
+      go version go1.22.0 ...
       ```
 
    e. Curl
@@ -101,6 +102,17 @@ You can clone this repository to begin developing your own `Extend Override` app
 
     > :exclamation: In macOS, you may use [Homebrew](https://brew.sh/) to easily install some of the tools above.
 
+2. Access to AGS environment.
+
+   a. Base URL
+   
+      - For `Shared Cloud` tier e.g.  https://spaceshooter.prod.gamingservices.accelbyte.io
+      - For `Private Cloud` tier e.g.  https://dev.accelbyte.io
+      
+   b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/tutorials/how-to/namespaces/create-a-game-namespace/) if you don't have one yet. Keep the `Namespace ID`.
+
+   c. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with confidential client type. Keep the `Client ID` and `Client Secret`.
+
 ## Setup
 
 To be able to run this app, you will need to follow these setup steps.
@@ -111,30 +123,29 @@ To be able to run this app, you will need to follow these setup steps.
    > :warning: **The host OS environment variables have higher precedence compared to `.env` file variables**: If the variables in `.env` file do not seem to take 
    effect properly, check if there are host OS environment variables with the 
    same name. See documentation about 
-   [docker compose environment variables precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/) 
+   [docker compose environment variables precedence](https://docs.docker.com/compose/how-tos/environment-variables/envvars-precedence/) 
    for more details.
 
 2. Fill in the required environment variables in `.env` file as shown below.
 
    ```
-   AB_BASE_URL=https://prod.gamingservices.accelbyte.io      # Base URL of AccelByte Gaming Services prod environment
-   AB_CLIENT_ID='xxxxxxxxxx'                                   # Client ID from the Prerequisites section
-   AB_CLIENT_SECRET='xxxxxxxxxx'                               # Client Secret from the Prerequisites section
-   PLUGIN_GRPC_SERVER_AUTH_ENABLED=false                       # Enable or disable access token and permission verification
+   AB_BASE_URL=https://test.accelbyte.io     # Base URL of AccelByte Gaming Services environment
+   AB_CLIENT_ID='xxxxxxxxxx'                 # Client ID from the Prerequisites section
+   AB_CLIENT_SECRET='xxxxxxxxxx'             # Client Secret from the Prerequisites section
+   AB_NAMESPACE='xxxxxxxxxx'                 # Namespace ID from the Prerequisites section
+   PLUGIN_GRPC_SERVER_AUTH_ENABLED=false     # Enable or disable access token validation
    ```
 
-3. Access to AccelByte Gaming Services environment.
-    a. Base URL
-        - Sample URL for AGS Shared Cloud customers: https://spaceshooter.prod.gamingservices.accelbyte.io
-    b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/tutorials/how-to/create-a-game-namespace/) if you don't have one yet. Keep the `Namespace ID`.
-    c. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with confidential client type. Keep the `Client ID` and `Client Secret`.
+   > :exclamation: **In this app, PLUGIN_GRPC_SERVER_AUTH_ENABLED is `true` by default**: If it is set to `false`, the `gRPC server` can be invoked without an AGS access 
+   token. This option is provided for development purpose only. It is 
+   recommended to enable `gRPC server` access token validation in production 
+   environment.
 
 ## Building
 
 To build this app, use the following command.
 
 ```
-make proto
 make build
 ```
 
@@ -161,11 +172,13 @@ The custom functions in this app can be tested locally using [postman](https://w
    docker compose up --build
    ```
 
-2. Open `postman`, create a new `gRPC request`, and enter `localhost:6565` as server URL (tutorial [here](https://blog.postman.com/postman-now-supports-grpc/)). 
+2. Open `postman`, create a new `gRPC request`, and enter `localhost:6565` as server URL.
+
+   > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this project as mentioned in [Test Observability](#test-observability)**: Use `localhost:10000` instead of `localhost:6565`. This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
 
 3. In `postman`, continue by selecting `OnSessionCreated` grpc call method and click `Invoke` button, this will start stream connection to the gRPC server.
 
-4. In `postman`, continue sending parameters first to specify number of players in a match by copying sample `json` below and click `Send`.
+4. Still in `postman`, continue sending parameters first to specify number of players in a match by copying sample `JSON` below and click `Send`.
 
    ```json
    {
@@ -179,8 +192,10 @@ The custom functions in this app can be tested locally using [postman](https://w
       }
    }
    ```
+
    Expected response when success the session will be returned back but will added `attributes` field like below:
-   ```
+
+   ```json
    {
     "session": {
         "session": {
@@ -214,30 +229,35 @@ For testing this app which is running locally with AGS, the `gRPC server` needs 
    make ngrok NGROK_AUTHTOKEN=xxxxxxxxxxx
    ```
 
-> :warning: **Ngrok free plan has some limitations**: You may want to use paid plan if the traffic is high.
+   > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this app as mentioned in [Test Observability](#test-observability)**: Run the above 
+   command in `grpc-plugin-dependencies` directory instead of this app directory.
 
 4. in admin portal go to -> Multiplayer > Matchmaking > Session Configuration. Click on the Add Session Template button. Select the Server configuration to be a DS - Custom. Then, select the Custom URL option and provide the ngrok forwarding URL from step 3.
 
 5. create gamesession via [end point](https://docs.accelbyte.io/api-explorer/#Session/createGameSession) with simple json body:
-```
-{
-  "configurationName": "<your-session-template>"
-}
-```
+
+   ```json
+   {
+      "configurationName": "<your-session-template>"
+   }
+   ```
 
 6. Check the result in Admin portal -> Multiplayer -> Sessions and Parties. Check in session detail that created by number 5 and we will have session with `attributes` with key `SAMPLE` and value is `value from GRPC server`
-```
-{
-    ...
-    "id": "e99542476f924d5aa5166a3d83932056",
-    "namespace": "<your-namespace>",
-    "createdAt": "2024-09-19T01:50:10.999Z",
-    "attributes": {
-        "SAMPLE": "value from GRPC server"
-    },
-    ...
-}
-```
+
+   ```json
+   {
+      ...
+      "id": "e99542476f924d5aa5166a3d83932056",
+      "namespace": "<your-namespace>",
+      "createdAt": "2024-09-19T01:50:10.999Z",
+      "attributes": {
+         "SAMPLE": "value from GRPC server"
+      },
+      ...
+   }
+   ```
+
+> :warning: **Ngrok free plan has some limitations**: You may want to use paid plan if the traffic is high.
 
 ## Deploying
 
@@ -271,6 +291,40 @@ After done testing, you may want to deploy this app to `AccelByte Gaming Service
 7. Click **Deploy Image**, confirm the deployment and go back to App Detail by clicking **Cancel**.
 
 8. Wait until app status is running.
+
+### Test Observability
+
+To be able to see the how the observability works in this app locally, there are few things that need be setup before performing tests.
+
+1. Uncomment loki logging driver in [docker-compose.yaml](docker-compose.yaml)
+
+   ```
+    # logging:
+    #   driver: loki
+    #   options:
+    #     loki-url: http://host.docker.internal:3100/loki/api/v1/push
+    #     mode: non-blocking
+    #     max-buffer-size: 4m
+    #     loki-retries: "3"
+   ```
+
+   > :warning: **Make sure to install docker loki plugin beforehand**: Otherwise,
+   this project will not be able to run. This is required so that container logs
+   can flow to the `loki` service within `grpc-plugin-dependencies` stack. 
+   Use this command to install docker loki plugin: `docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions`.
+
+2. Clone and run [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this project. After this, Grafana 
+will be accessible at http://localhost:3000.
+
+   ```
+   git clone https://github.com/AccelByte/grpc-plugin-dependencies.git
+   cd grpc-plugin-dependencies
+   docker-compose up
+   ```
+
+   > :exclamation: More information about [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) is available [here](https://github.com/AccelByte/grpc-plugin-dependencies/blob/main/README.md).
+
+3. Perform testing. For example, by following [Test in Local Development Environment](#test-in-local-development-environment) or [Test with AccelByte Gaming Services](#test-with-accelbyte-gaming-services).
 
 ## Next Step
 
