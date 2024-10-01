@@ -45,3 +45,32 @@ func (s *SessionManager) OnSessionDeleted(ctx context.Context, request *sessionm
 	log.Println("session deleted", request.GetSession())
 	return &emptypb.Empty{}, nil
 }
+
+func (s *SessionManager) OnPartyCreated(ctx context.Context, request *sessionmanager.PartyCreatedRequest) (*sessionmanager.PartyResponse, error) {
+	log.Println("got message from OnSessionCreated")
+	log.Println("session", request.GetSession())
+	session := request.GetSession()
+	if session.Session.Attributes == nil {
+		session.Session.Attributes = &structpb.Struct{}
+	}
+	if session.Session.Attributes.Fields == nil {
+		session.Session.Attributes.Fields = map[string]*structpb.Value{}
+	}
+	session.Session.Attributes.Fields["PARTY_SAMPLE"] = structpb.NewStringValue("party value from GRPC server")
+	return &sessionmanager.PartyResponse{
+		Session: session,
+	}, nil
+}
+
+func (s *SessionManager) OnPartyUpdated(ctx context.Context, request *sessionmanager.PartyUpdatedRequest) (*emptypb.Empty, error) {
+	log.Println("got message from OnPartyUpdated")
+	log.Println("old session", request.GetSessionOld())
+	log.Println("new session", request.GetSessionNew())
+	return &emptypb.Empty{}, nil
+}
+
+func (s *SessionManager) OnPartyDeleted(ctx context.Context, request *sessionmanager.PartyDeletedRequest) (*emptypb.Empty, error) {
+	log.Println("got message from OnPartyDeleted")
+	log.Println("session deleted", request.GetSession())
+	return &emptypb.Empty{}, nil
+}

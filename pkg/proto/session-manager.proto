@@ -19,23 +19,31 @@ service SessionManager {
   rpc OnSessionCreated(SessionCreatedRequest) returns (SessionResponse);
   rpc OnSessionUpdated(SessionUpdatedRequest) returns (google.protobuf.Empty);
   rpc OnSessionDeleted(SessionDeletedRequest) returns (google.protobuf.Empty);
+  rpc OnPartyCreated(PartyCreatedRequest) returns (PartyResponse);
+  rpc OnPartyUpdated(PartyUpdatedRequest) returns (google.protobuf.Empty);
+  rpc OnPartyDeleted(PartyDeletedRequest) returns (google.protobuf.Empty);
 }
 
 enum Action {
   None = 0;
-  SessionCreated         = 1;
-	SessionDeleted         = 2;
-	SessionUserInvited     = 4;
-	SessionUserRejected    = 8;
-	SessionUserKicked      = 16;
-	SessionUserJoined      = 32;
-	SessionMembersChanged  = 64;
-	SessionUpdated         = 128; 
-	SessionInviteTimeout   = 256;
-	SessionInviteCancelled = 512;
-	DSStatusChanged = 1024;
-	SessionSync = 2048;
-	SessionStorageUpdated = 4096;
+  SessionCreated          = 1;
+	SessionDeleted          = 2;
+	SessionUserInvited      = 4;
+	SessionUserRejected     = 8;
+	SessionUserKicked       = 16;
+	SessionUserJoined       = 32;
+	SessionMembersChanged   = 64;
+	SessionUpdated          = 128; 
+	SessionInviteTimeout    = 256;
+	SessionInviteCancelled  = 512;
+	DSStatusChanged         = 1024;
+	SessionSync             = 2048;
+	SessionStorageUpdated   = 4096;
+  SessionUserLeave        = 8192;
+  SessionUserConnected    = 16384;
+  SessionUserDisconnected = 32768;
+  SessionUserDropped      = 65536;
+  SessionLeaderPromoted   = 131072;
 }
 
 message SessionCreatedRequest {
@@ -122,4 +130,70 @@ message GameSession {
   BaseSession session = 10;
   repeated Team teams = 11;
   string secret = 12;
+}
+
+message Configuration {
+  google.protobuf.Struct attributes = 1;
+  bool auto_join = 2;
+  int32 inactive_timeout = 3;
+  int32 invite_timeout = 4;
+  string joinability = 5;
+  int32 leader_election_grace_period = 6;
+  int32 max_players = 7;
+  int32 min_players = 8;
+  bool persistent = 9;
+  bool text_chat = 10;
+  bool disable_resend_invite = 11;
+  string type = 12;
+}
+
+message User {
+  string id = 1;
+  string status = 2;
+  string status_v2 = 3;
+  google.protobuf.Timestamp updated_at = 4;
+  string platform_id = 5;
+  string platform_user_id = 6;
+  string previous_status = 7;
+}
+
+message BaseSession {
+    bool is_active = 1;
+    bool is_full = 2;
+    int32 version = 3;
+    string id = 4;
+    string namespace = 5;
+    string created_by = 6;
+    string configuration_name = 7;
+    string leader_id = 8;
+    google.protobuf.Timestamp created_at = 9;
+    google.protobuf.Timestamp expired_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
+    google.protobuf.Struct attributes = 12;
+    google.protobuf.Struct storages = 13;
+    Configuration configuration = 14;
+    repeated User members = 15;
+  }
+
+message PartySession {
+  BaseSession session = 1;
+  string code = 2;
+}
+
+message PartyCreatedRequest {
+  PartySession session = 1;
+}
+
+message PartyUpdatedRequest {
+  PartySession session_old = 1;
+  PartySession session_new = 2;
+  Action action = 3;
+}
+
+message PartyDeletedRequest {
+  PartySession session = 1;
+}
+
+message PartyResponse {
+  PartySession session = 1;
 }

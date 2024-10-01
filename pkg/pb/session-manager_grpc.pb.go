@@ -30,6 +30,9 @@ type SessionManagerClient interface {
 	OnSessionCreated(ctx context.Context, in *SessionCreatedRequest, opts ...grpc.CallOption) (*SessionResponse, error)
 	OnSessionUpdated(ctx context.Context, in *SessionUpdatedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	OnSessionDeleted(ctx context.Context, in *SessionDeletedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OnPartyCreated(ctx context.Context, in *PartyCreatedRequest, opts ...grpc.CallOption) (*PartyResponse, error)
+	OnPartyUpdated(ctx context.Context, in *PartyUpdatedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	OnPartyDeleted(ctx context.Context, in *PartyDeletedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type sessionManagerClient struct {
@@ -67,6 +70,33 @@ func (c *sessionManagerClient) OnSessionDeleted(ctx context.Context, in *Session
 	return out, nil
 }
 
+func (c *sessionManagerClient) OnPartyCreated(ctx context.Context, in *PartyCreatedRequest, opts ...grpc.CallOption) (*PartyResponse, error) {
+	out := new(PartyResponse)
+	err := c.cc.Invoke(ctx, "/accelbyte.session.manager.SessionManager/OnPartyCreated", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sessionManagerClient) OnPartyUpdated(ctx context.Context, in *PartyUpdatedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/accelbyte.session.manager.SessionManager/OnPartyUpdated", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sessionManagerClient) OnPartyDeleted(ctx context.Context, in *PartyDeletedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/accelbyte.session.manager.SessionManager/OnPartyDeleted", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SessionManagerServer is the server API for SessionManager service.
 // All implementations must embed UnimplementedSessionManagerServer
 // for forward compatibility
@@ -74,6 +104,9 @@ type SessionManagerServer interface {
 	OnSessionCreated(context.Context, *SessionCreatedRequest) (*SessionResponse, error)
 	OnSessionUpdated(context.Context, *SessionUpdatedRequest) (*emptypb.Empty, error)
 	OnSessionDeleted(context.Context, *SessionDeletedRequest) (*emptypb.Empty, error)
+	OnPartyCreated(context.Context, *PartyCreatedRequest) (*PartyResponse, error)
+	OnPartyUpdated(context.Context, *PartyUpdatedRequest) (*emptypb.Empty, error)
+	OnPartyDeleted(context.Context, *PartyDeletedRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedSessionManagerServer()
 }
 
@@ -89,6 +122,15 @@ func (UnimplementedSessionManagerServer) OnSessionUpdated(context.Context, *Sess
 }
 func (UnimplementedSessionManagerServer) OnSessionDeleted(context.Context, *SessionDeletedRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OnSessionDeleted not implemented")
+}
+func (UnimplementedSessionManagerServer) OnPartyCreated(context.Context, *PartyCreatedRequest) (*PartyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OnPartyCreated not implemented")
+}
+func (UnimplementedSessionManagerServer) OnPartyUpdated(context.Context, *PartyUpdatedRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OnPartyUpdated not implemented")
+}
+func (UnimplementedSessionManagerServer) OnPartyDeleted(context.Context, *PartyDeletedRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OnPartyDeleted not implemented")
 }
 func (UnimplementedSessionManagerServer) mustEmbedUnimplementedSessionManagerServer() {}
 
@@ -157,6 +199,60 @@ func _SessionManager_OnSessionDeleted_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SessionManager_OnPartyCreated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PartyCreatedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionManagerServer).OnPartyCreated(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/accelbyte.session.manager.SessionManager/OnPartyCreated",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionManagerServer).OnPartyCreated(ctx, req.(*PartyCreatedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SessionManager_OnPartyUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PartyUpdatedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionManagerServer).OnPartyUpdated(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/accelbyte.session.manager.SessionManager/OnPartyUpdated",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionManagerServer).OnPartyUpdated(ctx, req.(*PartyUpdatedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SessionManager_OnPartyDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PartyDeletedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionManagerServer).OnPartyDeleted(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/accelbyte.session.manager.SessionManager/OnPartyDeleted",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionManagerServer).OnPartyDeleted(ctx, req.(*PartyDeletedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SessionManager_ServiceDesc is the grpc.ServiceDesc for SessionManager service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -175,6 +271,18 @@ var SessionManager_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OnSessionDeleted",
 			Handler:    _SessionManager_OnSessionDeleted_Handler,
+		},
+		{
+			MethodName: "OnPartyCreated",
+			Handler:    _SessionManager_OnPartyCreated_Handler,
+		},
+		{
+			MethodName: "OnPartyUpdated",
+			Handler:    _SessionManager_OnPartyUpdated_Handler,
+		},
+		{
+			MethodName: "OnPartyDeleted",
+			Handler:    _SessionManager_OnPartyDeleted_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
