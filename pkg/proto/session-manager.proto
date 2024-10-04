@@ -64,74 +64,6 @@ message SessionResponse {
   GameSession session = 1;
 }
 
-message GameSession {
-  message BaseSession {
-    message Configuration {
-      google.protobuf.Struct attributes = 1;
-      bool auto_join = 2;
-      int32 inactive_timeout = 3;
-      int32 invite_timeout = 4;
-      string joinability = 5;
-      int32 leader_election_grace_period = 6;
-      int32 max_players = 7;
-      int32 min_players = 8;
-      bool persistent = 9;
-      bool text_chat = 10;
-      bool disable_resend_invite = 11;
-      string type = 12;
-    }
-    message User {
-      string id = 1;
-      string status = 2;
-      string status_v2 = 3;
-      google.protobuf.Timestamp updated_at = 4;
-      string platform_id = 5;
-      string platform_user_id = 6;
-      string previous_status = 7;
-    }
-    bool is_active = 1;
-    bool is_full = 2;
-    int32 version = 3;
-    string id = 4;
-    string namespace = 5;
-    string created_by = 6;
-    string configuration_name = 7;
-    string leader_id = 8;
-    google.protobuf.Timestamp created_at = 9;
-    google.protobuf.Timestamp expired_at = 10;
-    google.protobuf.Timestamp updated_at = 11;
-    google.protobuf.Struct attributes = 12;
-    google.protobuf.Struct storages = 13;
-    Configuration configuration = 14;
-    repeated User members = 15;
-  }
-  message DSInformation {
-    google.protobuf.Timestamp requested_at = 1;
-    string status = 2;
-    string status_v2 = 3;
-  }
-  message Team {
-    message PartyMember {
-      string party_id = 1;
-      repeated string user_ids = 2;
-    }
-    repeated string user_ids = 1;
-    repeated PartyMember party_members = 2;
-  }
-  int32 retry = 1;
-  int64 processing_time = 2;
-  string match_pool = 3;
-  string backfill_ticket_id = 4;
-  string server_name = 5;
-  string step = 6;
-  string code = 7;
-  repeated string ticket_ids = 8;
-  DSInformation ds_information = 9;
-  BaseSession session = 10;
-  repeated Team teams = 11;
-  string secret = 12;
-}
-
 message Configuration {
   google.protobuf.Struct attributes = 1;
   bool auto_join = 2;
@@ -158,22 +90,53 @@ message User {
 }
 
 message BaseSession {
-    bool is_active = 1;
-    bool is_full = 2;
-    int32 version = 3;
-    string id = 4;
-    string namespace = 5;
-    string created_by = 6;
-    string configuration_name = 7;
-    string leader_id = 8;
-    google.protobuf.Timestamp created_at = 9;
-    google.protobuf.Timestamp expired_at = 10;
-    google.protobuf.Timestamp updated_at = 11;
-    google.protobuf.Struct attributes = 12;
-    google.protobuf.Struct storages = 13;
-    Configuration configuration = 14;
-    repeated User members = 15;
-  }
+  bool is_active = 1;
+  bool is_full = 2;
+  int32 version = 3;
+  string id = 4;
+  string namespace = 5;
+  string created_by = 6;
+  string configuration_name = 7;
+  string leader_id = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp expired_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+  google.protobuf.Struct attributes = 12;
+  google.protobuf.Struct storages = 13;
+  Configuration configuration = 14;
+  repeated User members = 15;
+}
+
+message DSInformation {
+  google.protobuf.Timestamp requested_at = 1;
+  string status = 2;
+  string status_v2 = 3;
+}
+
+message PartyMember {
+  string party_id = 1;
+  repeated string user_ids = 2;
+}
+
+message Team {
+  repeated string user_ids = 1;
+  repeated PartyMember party_members = 2;
+}
+
+message GameSession { 
+  int32 retry = 1;
+  int64 processing_time = 2;
+  string match_pool = 3;
+  string backfill_ticket_id = 4;
+  string server_name = 5;
+  string step = 6;
+  string code = 7;
+  repeated string ticket_ids = 8;
+  DSInformation ds_information = 9;
+  BaseSession session = 10;
+  repeated Team teams = 11;
+  string secret = 12;
+}
 
 message PartySession {
   BaseSession session = 1;
