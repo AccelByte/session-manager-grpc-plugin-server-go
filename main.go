@@ -48,7 +48,7 @@ const (
 )
 
 var (
-	serviceName = common.GetEnv("OTEL_SERVICE_NAME", "CustomProfanityFilterServiceGoServerDocker")
+	serviceName = common.GetEnv("OTEL_SERVICE_NAME", "SessionManagerFunctionGrpcPluginServerGoDocker")
 	logLevelStr = common.GetEnv("LOG_LEVEL", logrus.InfoLevel.String())
 )
 
