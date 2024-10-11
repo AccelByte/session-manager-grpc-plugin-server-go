@@ -19,7 +19,7 @@ type SessionManager struct {
 
 func (s *SessionManager) OnSessionCreated(ctx context.Context, request *sessionmanager.SessionCreatedRequest) (*sessionmanager.SessionResponse, error) {
 	log.Println("got message from OnSessionCreated")
-	log.Println("session", request.GetSession())
+	log.Println("game session", request.GetSession())
 	session := request.GetSession()
 	if session.Session.Attributes == nil {
 		session.Session.Attributes = &structpb.Struct{}
@@ -35,8 +35,8 @@ func (s *SessionManager) OnSessionCreated(ctx context.Context, request *sessionm
 
 func (s *SessionManager) OnSessionUpdated(ctx context.Context, request *sessionmanager.SessionUpdatedRequest) (*emptypb.Empty, error) {
 	log.Println("got message from OnSessionUpdated")
-	log.Println("old Session:", request.GetSessionOld())
-	log.Println("new Session:", request.GetSessionNew())
+	log.Println("old game Session:", request.GetSessionOld())
+	log.Println("new game Session:", request.GetSessionNew())
 	return &emptypb.Empty{}, nil
 }
 
@@ -47,8 +47,8 @@ func (s *SessionManager) OnSessionDeleted(ctx context.Context, request *sessionm
 }
 
 func (s *SessionManager) OnPartyCreated(ctx context.Context, request *sessionmanager.PartyCreatedRequest) (*sessionmanager.PartyResponse, error) {
-	log.Println("got message from OnSessionCreated")
-	log.Println("session", request.GetSession())
+	log.Println("got message from OnPartyCreated")
+	log.Println("party session", request.GetSession())
 	session := request.GetSession()
 	if session.Session.Attributes == nil {
 		session.Session.Attributes = &structpb.Struct{}
@@ -64,13 +64,13 @@ func (s *SessionManager) OnPartyCreated(ctx context.Context, request *sessionman
 
 func (s *SessionManager) OnPartyUpdated(ctx context.Context, request *sessionmanager.PartyUpdatedRequest) (*emptypb.Empty, error) {
 	log.Println("got message from OnPartyUpdated")
-	log.Println("old session", request.GetSessionOld())
-	log.Println("new session", request.GetSessionNew())
+	log.Println("old party session", request.GetSessionOld())
+	log.Println("new party session", request.GetSessionNew())
 	return &emptypb.Empty{}, nil
 }
 
 func (s *SessionManager) OnPartyDeleted(ctx context.Context, request *sessionmanager.PartyDeletedRequest) (*emptypb.Empty, error) {
 	log.Println("got message from OnPartyDeleted")
-	log.Println("session deleted", request.GetSession())
+	log.Println("party session deleted", request.GetSession())
 	return &emptypb.Empty{}, nil
 }
