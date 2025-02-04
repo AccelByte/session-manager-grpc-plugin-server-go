@@ -44,7 +44,7 @@ build: proto
 			-w /data/ \
 			-e GOCACHE=/data/.cache/go-build \
 			$(GOLANG_DOCKER_IMAGE) \
-			sh -c "go build"
+			sh -c "go build -modcacherw"
 
 image:
 	docker buildx build -t ${IMAGE_NAME} --load .
