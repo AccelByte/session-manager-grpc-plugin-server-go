@@ -95,7 +95,7 @@ You can clone this repository to begin developing your own `Extend Override` app
 
     h. [ngrok](https://ngrok.com/)
 
-      - Follow [ngrok's installation guide](https://ngrok.com/download).
+      - Follow [ngrok's installation guide](https://ngrok.com/downloads).
 
     i. [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli)
       - Use the available binary from [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/releases).
