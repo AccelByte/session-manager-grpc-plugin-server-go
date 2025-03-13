@@ -232,30 +232,19 @@ For testing this app which is running locally with AGS, the `gRPC server` needs 
    > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this app as mentioned in [Test Observability](#test-observability)**: Run the above 
    command in `grpc-plugin-dependencies` directory instead of this app directory.
 
-4. in admin portal go to -> Multiplayer > Matchmaking > Session Configuration. Click on the Add Session Template button. Select the Server configuration to be a DS - Custom. Then, select the Custom URL option and provide the ngrok forwarding URL from step 3.
+4. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with `confidential` client type with the following permissions. Keep the `Client ID` and `Client Secret`.
 
-5. create gamesession via [end point](https://docs.accelbyte.io/api-explorer/#Session/createGameSession) with simple json body:
+   - For AGS Private Cloud customers:
+      - ADMIN:NAMESPACE:{namespace}:SESSION:CONFIGURATION [CREATE,READ,UPDATE,DELETE]
+      - ADMIN:NAMESPACE:{namespace}:INFORMATION:USER:* [DELETE]
 
-   ```json
-   {
-      "configurationName": "<your-session-template>"
-   }
-   ```
+   - For AGS Shared Cloud customers:
+      - Session -> Custom Configuration (Read, Create, Update, Delete)
+      - IAM -> Users (Delete)
 
-6. Check the result in Admin portal -> Multiplayer -> Sessions and Parties. Check in session detail that created by number 5 and we will have session with `attributes` with key `SAMPLE` and value is `value from GRPC server`
+   > :warning: **Oauth Client created in this step is different from the one from Prerequisites section:** It is required by the [Postman collection](demo/session-manager-demo.postman_collection.json) in the next step to register the `gRPC Server` URL and also to create and delete test users.
 
-   ```json
-   {
-      ...
-      "id": "e99542476f924d5aa5166a3d83932056",
-      "namespace": "<your-namespace>",
-      "createdAt": "2024-09-19T01:50:10.999Z",
-      "attributes": {
-         "SAMPLE": "value from GRPC server"
-      },
-      ...
-   }
-   ```
+5. Import the [Postman collection](demo/session-manager-demo.postman_collection.json) into Postman to simulate the session manager flow. Follow the instructions in the Postman collection overview to set up the environment, using the Client ID and Client Secret from the previous step. Monitor the Extend app console log while the session manager flow is running.
 
 > :warning: **Ngrok free plan has some limitations**: You may want to use paid plan if the traffic is high.
 
@@ -328,4 +317,4 @@ will be accessible at http://localhost:3000.
 
 ## Next Step
 
-Proceed to modify this project template and implement your own custom functions.
+Proceed to create your own `Extend Override` app for `Session Manager function` by modifying this project. See [here](https://docs.accelbyte.io/gaming-services/services/extend/override/session-manager-function/) for more details.
