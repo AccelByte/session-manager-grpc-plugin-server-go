@@ -121,6 +121,7 @@ message PartyMember {
 message Team {
   repeated string user_ids = 1;
   repeated PartyMember party_members = 2;
+  string team_id = 3;
 }
 
 message GameSession { 
