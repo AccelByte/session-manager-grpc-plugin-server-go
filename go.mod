@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.7
 
 require (
-	github.com/AccelByte/accelbyte-go-sdk v0.78.1-0.20250319093635-48d06e1a5166
+	github.com/AccelByte/accelbyte-go-sdk v0.80.0
 	github.com/AccelByte/go-restful-plugins/v3 v3.2.2
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.0.1
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
