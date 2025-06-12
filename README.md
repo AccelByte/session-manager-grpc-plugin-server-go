@@ -263,39 +263,6 @@ To test the app, which runs locally with AGS, the `gRPC server` needs to be conn
 
 4. Import the [Postman collection](demo/session-manager-demo.postman_collection.json) into Postman to simulate the session manager flow. Follow the instructions in the Postman collection overview to set up the environment, using the Client ID and Client Secret from the previous step. Monitor the Extend app console log while the session manager flow is running.
 
-## Deploying
-
-After done testing, you may want to deploy this app to `AccelByte Gaming Services`.
-
-1. [Create a new Extend Override App on Admin Portal](https://docs.accelbyte.io/gaming-services/services/extend/override/getting-started-with-cloudsave-validator-customization/#create-the-extend-app). Keep the `Repository URI`.
-
-2. Download and setup [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/) (only if it has not been done previously).
-
-3. Perform docker login with `extend-helper-cli` using the following command.
-
-   ```
-   extend-helper-cli dockerlogin --namespace <my-namespace> --app <my-app> --login
-   ```
-
-   > :exclamation: For your convenience, the above `extend-helper-cli` command can also be 
-   copied from `Repository Authentication Command` under the corresponding app detail page.
-
-4. Build and push app docker image to AccelByte ECR using the following command.
-   
-   ```
-   extend-helper-cli image-upload --work-dir <my-project-dir> --namespace <my-namespace> -f Dockerfile --app <my-app> --image-tag v0.0.1
-   ```
-
-   > :warning: Make sure to perform docker login (step 3) before executing the above command.
-
-5. Open Admin Portal, go to **Extend** -> **Overridable Features**. And then select the extend app.
-
-6. To deploy selected image tag, click **Image Version History** and select desired image tag to be deployed.
-
-7. Click **Deploy Image**, confirm the deployment and go back to App Detail by clicking **Cancel**.
-
-8. Wait until app status is running.
-
 ### Test Observability
 
 To be able to see the how the observability works in this app locally, there are few things that need be setup before performing tests.
@@ -330,6 +297,35 @@ will be accessible at http://localhost:3000.
 
 3. Perform testing. For example, by following [Test in Local Development Environment](#test-in-local-development-environment) or [Test with AccelByte Gaming Services](#test-with-accelbyte-gaming-services).
 
+## Deploying
+
+After completing testing, the next step is to deploy your app to `AccelByte Gaming Services`.
+
+1. **Create an Extend Override app**
+
+   If you do not already have one, create a new [Extend Override App](https://docs.accelbyte.io/gaming-services/services/extend/override/session-manager/get-started-session-manager/#create-the-extend-app).
+
+   On the **App Detail** page, take note of the following values.
+   - `Namespace`
+   - `App Name`
+
+2. **Build and Push the Container Image**
+
+   Use [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli) to build and upload the container image.
+
+   ```
+   extend-helper-cli image-upload --login --namespace <namespace> --app <app-name> --image-tag v0.0.1
+   ```
+
+   > :warning: Run this command from your project directory. If you are in a different directory, add the `--work-dir <project-dir>` option to specify the correct path.
+
+3. **Deploy the Image**
+   
+   On the **App Detail** page:
+   - Click **Image Version History**
+   - Select the image you just pushed
+   - Click **Deploy Image**
+
 ## Next Step
 
-Proceed to create your own `Extend Override` app for `Session Manager function` by modifying this project. See [here](https://docs.accelbyte.io/gaming-services/services/extend/override/session-manager-function/) for more details.
+Proceed by modifying this `Extend Override` app template to implement your own custom logic. For more details, see [here](https://docs.accelbyte.io/gaming-services/services/extend/override/session-manager/customize-session-manager/).
