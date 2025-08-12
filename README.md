@@ -57,14 +57,14 @@ You can clone this repository to begin developing your own `Extend Override` app
       ...
       ```
 
-   d. Go v1.22
+   d. Go v1.24
 
       - Follow [Go installation](https://go.dev/doc/install) instruction to install Go
 
       ```
       go version
 
-      go version go1.22.0 ...
+      go version go1.24.0 ...
       ```
 
    e. Curl
