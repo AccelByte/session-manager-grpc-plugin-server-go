@@ -6,11 +6,12 @@ package envelope
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"time"
 
 	"accelbyte.net/session-manager-grpc-plugin-server-go/pkg/constants"
 	"github.com/AccelByte/go-restful-plugins/v3/pkg/trace"
-	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -30,7 +31,7 @@ type Scope struct {
 	Ctx     context.Context //nolint:containedctx
 	TraceID string
 	span    oteltrace.Span
-	Log     *logrus.Entry
+	Log     *slog.Logger
 }
 
 func ChildScopeFromRemoteScope(ctx context.Context, name string, traceID string) *Scope {
@@ -41,10 +42,12 @@ func ChildScopeFromRemoteScope(ctx context.Context, name string, traceID string)
 		Ctx:     tracerCtx,
 		TraceID: traceID,
 		span:    span,
-		Log: logrus.WithField(abTraceIdLogField, traceID).
-			WithField(versionField, constants.VERSION).
-			WithField(gitHashField, constants.GIT_HASH).
-			WithField(roleSeedingVersionField, constants.ROLE_SEEDING_VERSION),
+		Log: slog.Default().With(
+			slog.String(abTraceIdLogField, traceID),
+			slog.String(versionField, constants.VERSION),
+			slog.String(gitHashField, constants.GIT_HASH),
+			slog.String(roleSeedingVersionField, constants.ROLE_SEEDING_VERSION),
+		),
 	}
 }
 
@@ -55,10 +58,12 @@ func NewRootScope(rootCtx context.Context, name string, abTraceID string) *Scope
 		Ctx:     ctx,
 		TraceID: abTraceID,
 		span:    span,
-		Log: logrus.WithField(abTraceIdLogField, abTraceID).
-			WithField(versionField, constants.VERSION).
-			WithField(gitHashField, constants.GIT_HASH).
-			WithField(roleSeedingVersionField, constants.ROLE_SEEDING_VERSION),
+		Log: slog.Default().With(
+			slog.String(abTraceIdLogField, abTraceID),
+			slog.String(versionField, constants.VERSION),
+			slog.String(gitHashField, constants.GIT_HASH),
+			slog.String(roleSeedingVersionField, constants.ROLE_SEEDING_VERSION),
+		),
 	}
 
 	if abTraceID != "" {
@@ -152,7 +157,7 @@ func (s *Scope) SetAttributes(key string, value interface{}) {
 	case []float64:
 		s.span.SetAttributes(attribute.Float64Slice(key, v))
 	default:
-		logrus.Errorf("could not set a span attribute of type %T", value)
+		slog.Default().Error("could not set a span attribute", "type", fmt.Sprintf("%T", value))
 	}
 }
 
@@ -162,6 +167,6 @@ func (s *Scope) TraceEvent(eventMessage string) {
 }
 
 // SetLogger allows for setting a different logger than the default std logger. This is mostly useful for testing.
-func (s *Scope) SetLogger(logger *logrus.Logger) {
-	s.Log = logger.WithField(abTraceIdLogField, s.TraceID)
+func (s *Scope) SetLogger(logger *slog.Logger) {
+	s.Log = logger.With(slog.String(abTraceIdLogField, s.TraceID))
 }
